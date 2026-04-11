@@ -220,6 +220,21 @@ CONDA_SUBDIR=osx-64 nextflow run assemble.nf -c assemble.config -profile conda,a
     --hybracter_no_medaka true
 ```
 
+> **`--hybracter_no_medaka true` is required on macOS Apple Silicon.**
+> Hybracter uses [medaka](https://github.com/nanoporetech/medaka) for neural network
+> consensus polishing as its final assembly step. Medaka has a hard dependency on
+> **OpenSSL 1.1.x**, which conflicts with the OpenSSL 3.x libraries present in macOS
+> conda environments — even under Rosetta 2 (osx-64) emulation. Conda cannot resolve
+> an environment that satisfies both constraints, so medaka's internal conda environment
+> fails to build. Passing `--hybracter_no_medaka true` skips the polishing step:
+> hybracter still runs Flye assembly, Plassembler plasmid recovery, and chromosome
+> circularisation — you simply do not get the final medaka polishing pass.
+>
+> **If medaka polishing is required**, run the pipeline on Linux or an HPC cluster
+> (omit `--hybracter_no_medaka` — it defaults to `false`). With high-accuracy Dorado
+> basecalling (Q20+ reads), the impact of skipping medaka polishing on consensus
+> accuracy is generally minimal.
+
 > `CONDA_SUBDIR=osx-64` is required on Apple Silicon. Nextflow's conda integration
 > does not consistently pass `--platform` to libmamba, so setting this environment
 > variable ensures Rosetta 2 (x86_64) conda environments are created. Environments
