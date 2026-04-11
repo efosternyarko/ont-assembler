@@ -1,0 +1,36 @@
+// ── DRAGONFLYE_ASSEMBLY: ONT long-read assembly with DragonFlye ───────────
+// DragonFlye wraps Flye with additional QC steps (read trimming, length
+// filtering, optional short-read polishing).
+
+process DRAGONFLYE_ASSEMBLY {
+    tag "${sample_id}"
+    label 'high'
+    errorStrategy 'ignore'   // failed assembly skips the sample; never kills the whole run
+
+    conda     "${projectDir}/envs/dragonflye.yml"
+    container 'quay.io/biocontainers/dragonflye:1.2.0--hdfd78af_0'
+
+    input:
+    tuple val(sample_id), path(reads)
+    val(genome_size)
+
+    output:
+    tuple val(sample_id), path("${sample_id}.fasta"), emit: assembly
+    path("${sample_id}_dragonflye.log"),                       emit: log
+
+    script:
+    """
+    dragonflye \\
+        --reads ${reads} \\
+        --outdir ${sample_id}_dragonflye \\
+        --gsize ${genome_size} \\
+        --cpus ${task.cpus} \\
+        --minreadlen 1000 \\
+        --minquality 8
+
+    cp ${sample_id}_dragonflye/contigs.fa ${sample_id}.fasta
+
+    cp ${sample_id}_dragonflye/dragonflye.log ${sample_id}_dragonflye.log 2>/dev/null \\
+        || echo "sample: ${sample_id}" > ${sample_id}_dragonflye.log
+    """
+}

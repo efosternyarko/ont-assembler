@@ -1,0 +1,7 @@
+name: enteric_seqkit
+channels:
+  - bioconda
+  - conda-forge
+  - nodefaults
+dependencies:
+  - seqkit>=2.6.0

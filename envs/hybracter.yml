@@ -1,0 +1,8 @@
+name: enteric_hybracter
+channels:
+  - bioconda
+  - conda-forge
+  - nodefaults
+dependencies:
+  - hybracter>=0.12.0
+  - snakemake<8        # hybracter 0.12 rules use both mem_mb and mem; Snakemake 8 rejects this

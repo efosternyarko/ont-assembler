@@ -1,0 +1,7 @@
+name: enteric_dragonflye
+channels:
+  - bioconda
+  - conda-forge
+  - nodefaults
+dependencies:
+  - dragonflye>=1.2.0
