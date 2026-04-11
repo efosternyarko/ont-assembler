@@ -68,6 +68,71 @@ def input_dir_channel(dir_path) {
 
 // ── Workflow ──────────────────────────────────────────────────────────────
 
+// ── Help ──────────────────────────────────────────────────────────────────────
+if (params.help) {
+    log.info """
+    ╔══════════════════════════════════════════════════════════════════════════╗
+    ║                         ont-assembler                                   ║
+    ║   ONT long-read assembly with read QC and depth filtering               ║
+    ╚══════════════════════════════════════════════════════════════════════════╝
+
+    USAGE
+      nextflow run assemble.nf -c assemble.config -profile <profile> [options]
+
+    INPUT (one required)
+      --input_dir   <dir>   Directory of FASTQ / FASTQ.gz files
+                            (sample ID = filename stem)
+      --samplesheet <csv>   CSV with columns: id,reads
+
+    COMMON OPTIONS
+      --outdir              <dir>    Output directory (default: assembly_results)
+      --assembler           <name>   hybracter (default) | flye | dragonflye | unicycler
+      --genome_size         <size>   Expected genome size (default: 5m)
+      --min_read_depth      <n>      Min estimated depth to assemble (default: 20)
+      --hybracter_no_medaka          Skip medaka polishing (required on macOS ARM)
+      --max_cpus            <n>      Max CPUs per process (default: 16)
+
+    EXAMPLES
+      # Hybracter (default) — Linux / HPC
+      nextflow run assemble.nf -c assemble.config -profile conda \\
+          --input_dir /path/to/fastq/
+
+      # macOS Apple Silicon (M1/M2/M3/M4)
+      CONDA_SUBDIR=osx-64 nextflow run assemble.nf -c assemble.config -profile conda,arm64 \\
+          --input_dir /path/to/fastq/ \\
+          --hybracter_no_medaka true
+
+      # HPC (SLURM + Singularity)
+      nextflow run assemble.nf -c assemble.config -profile singularity,slurm \\
+          --input_dir /path/to/fastq/
+
+      # Alternative assembler
+      nextflow run assemble.nf -c assemble.config -profile conda \\
+          --input_dir /path/to/fastq/ \\
+          --assembler flye
+
+      # Resume after interruption
+      nextflow run assemble.nf -c assemble.config -profile conda \\
+          --input_dir /path/to/fastq/ -resume
+
+    NOTE  Assembled FASTAs (hybracter) are written to:
+            assembly_results/all_assemblies/
+          Pass this directory to enteric-typer with --input_dir.
+
+    PROFILES
+      conda           Local — conda environments
+      mamba           Local — mamba (faster env solving)
+      arm64           Add on Apple Silicon (combine with conda/mamba)
+      docker          Local — Docker
+      singularity     HPC — Singularity/Apptainer
+      slurm           HPC — SLURM executor
+      pbs             HPC — PBS/Torque executor
+
+    Full documentation: README.md
+    """.stripIndent()
+    exit 0
+}
+
 workflow {
 
     // 1. Build input channel
