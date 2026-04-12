@@ -97,7 +97,7 @@ if (params.help) {
       nextflow run assemble.nf -c assemble.config -profile conda \\
           --input_dir /path/to/fastq/
 
-      # macOS Apple Silicon (M1/M2/M3/M4)
+      # macOS Apple Silicon (M1 and above)
       CONDA_SUBDIR=osx-64 nextflow run assemble.nf -c assemble.config -profile conda,arm64 \\
           --input_dir /path/to/fastq/ \\
           --hybracter_no_medaka true

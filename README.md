@@ -52,7 +52,7 @@ CONDA_SUBDIR=osx-64 conda run --prefix .snakemake/conda/hybracter-env hybracter 
 nextflow run assemble.nf -c assemble.config -profile conda \
     --input_dir /path/to/fastq/
 
-# macOS Apple Silicon (M1/M2/M3/M4)
+# macOS Apple Silicon (M1 and above)
 CONDA_SUBDIR=osx-64 nextflow run assemble.nf -c assemble.config -profile conda,arm64 \
     --input_dir /path/to/fastq/ \
     --hybracter_no_medaka true
@@ -198,7 +198,7 @@ assembly_results/
 |---|---|
 | `conda` | Local workstation with conda/mamba |
 | `mamba` | Same as conda but with faster env solving |
-| `arm64` | **Add on Apple Silicon (M1/M2/M3/M4)** — forces osx-64 conda envs via Rosetta 2 |
+| `arm64` | **Add on Apple Silicon (M1 and above)** — forces osx-64 conda envs via Rosetta 2 |
 | `docker` | Local with Docker Desktop |
 | `singularity` | HPC with Singularity/Apptainer |
 | `slurm` | SLURM HPC executor (combine with another profile: `-profile conda,slurm`) |
