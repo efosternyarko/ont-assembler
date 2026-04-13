@@ -29,19 +29,22 @@ cd ont-assembler
 
 ### Hybracter: one-time setup
 
-Hybracter downloads its internal databases on first use. Run this once before the first assembly:
+Hybracter downloads its internal databases (~2 GB) on first use. Nextflow creates the
+hybracter conda environment during the first run (failed assemblies are ignored via
+`errorStrategy = 'ignore'`). After that first run, locate the env and install the databases:
 
 ```bash
-# Linux / Intel Mac
-conda run --prefix .snakemake/conda/hybracter-env hybracter install
+# 1. Find the hybracter env Nextflow created
+HYBRACTER_ENV=$(for e in work/conda/env-*/; do [ -f "${e}bin/hybracter" ] && echo "$e" && break; done)
 
-# macOS Apple Silicon
-CONDA_SUBDIR=osx-64 conda run --prefix .snakemake/conda/hybracter-env hybracter install
+# 2. Install databases — Linux / Intel Mac
+conda run --prefix "$HYBRACTER_ENV" hybracter install
+
+# 2. Install databases — macOS Apple Silicon (M1 and above)
+CONDA_SUBDIR=osx-64 conda run --prefix "$HYBRACTER_ENV" hybracter install
 ```
 
-> Nextflow creates the conda environments on the first run. If `hybracter install`
-> fails because the env does not exist yet, run the pipeline once with a small test
-> file first (`errorStrategy = 'ignore'` prevents failure), then run `hybracter install`.
+Then re-run the pipeline — the databases persist in the env across runs.
 
 ---
 
