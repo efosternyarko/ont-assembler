@@ -17,6 +17,7 @@ process FLYE_ASSEMBLY {
     output:
     tuple val(sample_id), path("${sample_id}.fasta"), emit: assembly
     path("${sample_id}_flye_info.txt"),                emit: info
+    path("${sample_id}_flye.gfa"),                     emit: gfa
     path("${sample_id}_timing.tsv"),                   emit: timing
 
     script:
@@ -31,9 +32,10 @@ process FLYE_ASSEMBLY {
 
     cp ${sample_id}_flye/assembly.fasta ${sample_id}.fasta
 
-    # Save basic assembly info
+    # Save assembly info and graph
     cp ${sample_id}_flye/assembly_info.txt ${sample_id}_flye_info.txt 2>/dev/null \\
         || echo "sample: ${sample_id}" > ${sample_id}_flye_info.txt
+    cp ${sample_id}_flye/assembly_graph.gfa ${sample_id}_flye.gfa 2>/dev/null || true
 
     _end=\$(date +%s)
     _elapsed=\$(( _end - _start ))

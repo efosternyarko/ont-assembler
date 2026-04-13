@@ -174,10 +174,11 @@ assembly_results_<assembler>/
 │   └── {sample}.fasta            ← assembled contigs (pass to enteric-typer)
 │
 ├── flye_assembly/            (if --assembler flye)
-│   └── {sample}_flye_info.txt    — per-contig assembly statistics from Flye
+│   ├── {sample}_flye_info.txt    — per-contig assembly statistics from Flye
+│   └── {sample}_flye.gfa         — GFA assembly graph (visualise in Bandage)
 │
 ├── raven_assembly/           (if --assembler raven)
-│   └── {sample}_raven.gfa        — GFA assembly graph
+│   └── {sample}_raven.gfa        — GFA assembly graph (visualise in Bandage)
 │
 ├── assembly_timing/
 │   └── {sample}_timing.tsv       — per-sample wall time for the assembly step
