@@ -4,14 +4,14 @@
 // Workflow:
 //   1. Read QC   — seqkit stats → per-sample TSV → 8-panel metrics plot
 //   2. Depth filter — drop samples below --min_read_depth
-//   3. Assembly  — hybracter (default) | flye | dragonflye | unicycler
+//   3. Assembly  — hybracter (default) | flye | raven
 //
 // Input (one of):
 //   --samplesheet  CSV with columns:  id,reads
 //   --input_dir    Directory of FASTQ / FASTQ.gz files (sample ID = filename stem)
 //
 // Key parameters:
-//   --assembler          hybracter (default) | flye | dragonflye | unicycler
+//   --assembler          hybracter (default) | flye | raven
 //   --genome_size        Expected genome size for depth calculation (default: 5m)
 //   --min_read_depth     Drop samples below this estimated depth × (default: 20)
 //   --chromosome_size    Hybracter: min contig length to call a chromosome (bp) (default: 2500000)
@@ -42,8 +42,7 @@ include { ONT_READ_QC       } from './modules/ont_read_qc'
 include { ONT_PLOT_METRICS  } from './modules/ont_plot_metrics'
 include { HYBRACTER_ASSEMBLY  } from './modules/hybracter_assembly'
 include { FLYE_ASSEMBLY       } from './modules/flye_assembly'
-include { DRAGONFLYE_ASSEMBLY } from './modules/dragonflye_assembly'
-include { UNICYCLER_ASSEMBLY  } from './modules/unicycler_assembly'
+include { RAVEN_ASSEMBLY      } from './modules/raven_assembly'
 
 // ── Input channel helpers ─────────────────────────────────────────────────
 
@@ -86,7 +85,7 @@ if (params.help) {
 
     COMMON OPTIONS
       --outdir              <dir>    Output directory (default: assembly_results_<assembler>)
-      --assembler           <name>   hybracter (default) | flye | dragonflye | unicycler
+      --assembler           <name>   hybracter (default) | flye | raven
       --genome_size         <size>   Expected genome size (default: 5m)
       --min_read_depth      <n>      Min estimated depth to assemble (default: 20)
       --hybracter_no_medaka          Skip medaka polishing (required on macOS ARM)
@@ -195,16 +194,12 @@ workflow {
         FLYE_ASSEMBLY(ch_reads_with_depth, params.genome_size)
         ch_assemblies = FLYE_ASSEMBLY.out.assembly
         ch_timing     = FLYE_ASSEMBLY.out.timing
-    } else if (asm == 'dragonflye') {
-        DRAGONFLYE_ASSEMBLY(ch_reads_with_depth, params.genome_size)
-        ch_assemblies = DRAGONFLYE_ASSEMBLY.out.assembly
-        ch_timing     = DRAGONFLYE_ASSEMBLY.out.timing
-    } else if (asm == 'unicycler') {
-        UNICYCLER_ASSEMBLY(ch_reads_with_depth)
-        ch_assemblies = UNICYCLER_ASSEMBLY.out.assembly
-        ch_timing     = UNICYCLER_ASSEMBLY.out.timing
+    } else if (asm == 'raven') {
+        RAVEN_ASSEMBLY(ch_reads_with_depth)
+        ch_assemblies = RAVEN_ASSEMBLY.out.assembly
+        ch_timing     = RAVEN_ASSEMBLY.out.timing
     } else {
-        error "Unknown assembler '${params.assembler}'. Choose: hybracter | flye | dragonflye | unicycler"
+        error "Unknown assembler '${params.assembler}'. Choose: hybracter | flye | raven"
     }
 
     // Emit assembled FASTAs (publishDir in assemble.config copies them to outdir/assemblies/)

@@ -6,7 +6,7 @@ A Nextflow pipeline for assembling Oxford Nanopore (ONT) long reads into genome 
 1. **Read QC** — per-sample metrics (read N50, depth, total reads, mean length) via `seqkit stats`
 2. **Depth filter** — samples below `--min_read_depth` (default 20×) are skipped with a warning
 3. **Read metrics plot** — 8-panel figure (histograms + boxplots) for passing samples
-4. **Assembly** — [Hybracter](https://github.com/gbouras13/hybracter) by default, with [Flye](https://github.com/fenderglass/Flye), [DragonFlye](https://github.com/rpetit3/dragonflye), and [Unicycler](https://github.com/rrwick/Unicycler) as alternatives
+4. **Assembly** — [Hybracter](https://github.com/gbouras13/hybracter) by default, with [Flye](https://github.com/fenderglass/Flye) and [Raven](https://github.com/lbcb-sci/raven) as alternatives
 
 Assembled FASTAs are ready to feed directly into [enteric-typer](https://github.com/efosternyarko/enteric-typer).
 
@@ -91,8 +91,7 @@ nextflow run /path/to/enteric-typer/main.nf -profile conda \
 |---|---|---|
 | `hybracter` | [Hybracter](https://github.com/gbouras13/hybracter) | **Default.** Circularises chromosomes and plasmids. Uses `--auto` to estimate chromosome size automatically. |
 | `flye` | [Flye](https://github.com/fenderglass/Flye) | `--nano-hq` mode (Guppy 5+ / Dorado Q20+ reads). |
-| `dragonflye` | [DragonFlye](https://github.com/rpetit3/dragonflye) | Flye wrapper with read trimming and length filtering. |
-| `unicycler` | [Unicycler](https://github.com/rrwick/Unicycler) | Long-read only mode (`--long`). Circularises assemblies where possible. |
+| `raven` | [Raven](https://github.com/lbcb-sci/raven) | Fast assembler for long uncorrected reads. No genome size required. Also outputs a GFA assembly graph. |
 
 ---
 
@@ -103,7 +102,7 @@ nextflow run /path/to/enteric-typer/main.nf -profile conda \
 | `--input_dir` | `null` | Directory of FASTQ / FASTQ.gz files. Sample ID = filename stem (strip extension). |
 | `--samplesheet` | `null` | CSV with columns `id,reads` |
 | `--outdir` | `assembly_results_<assembler>` | Output directory (assembler name included to prevent collisions) |
-| `--assembler` | `hybracter` | Assembly tool: `hybracter` \| `flye` \| `dragonflye` \| `unicycler` |
+| `--assembler` | `hybracter` | Assembly tool: `hybracter` \| `flye` \| `raven` |
 | `--genome_size` | `5m` | Expected genome size for depth calculation (e.g. `5m`, `4500000`) |
 | `--min_read_depth` | `20` | Minimum estimated depth (×). Shallower samples are skipped and excluded from the plot. |
 | `--chromosome_size` | `2500000` | Hybracter: minimum contig length (bp) to call a chromosome. Ignored when `--hybracter_auto true`. |
@@ -169,19 +168,21 @@ assembly_results_<assembler>/
 │           chromosome_length — assembled chromosome length (bp)
 │           plasmid_count     — number of plasmid contigs detected
 │
-│  ── Assembly outputs (flye / dragonflye / unicycler) ──────────────────────────
+│  ── Assembly outputs (flye / raven) ───────────────────────────────────────────
 │
 ├── assemblies/
-│   └── {sample}.fasta        ← assembled contigs (pass to enteric-typer)
+│   └── {sample}.fasta            ← assembled contigs (pass to enteric-typer)
 │
 ├── flye_assembly/            (if --assembler flye)
 │   └── {sample}_flye_info.txt    — per-contig assembly statistics from Flye
 │
-├── dragonflye_assembly/      (if --assembler dragonflye)
-│   └── {sample}_dragonflye.log   — DragonFlye run log
+├── raven_assembly/           (if --assembler raven)
+│   └── {sample}_raven.gfa        — GFA assembly graph
 │
-├── unicycler_assembly/       (if --assembler unicycler)
-│   └── {sample}_unicycler.log    — Unicycler run log
+├── assembly_timing/
+│   └── {sample}_timing.tsv       — per-sample wall time for the assembly step
+│
+└── assembly_timing_summary.tsv   — all samples collated (sample, assembler, duration_seconds, duration_hms)
 │
 │  ── Pipeline info ─────────────────────────────────────────────────────────────
 │
@@ -266,7 +267,6 @@ If you use ont-assembler, please also cite the underlying tools:
 
 - **Hybracter**: Bouras et al. (2024) Microbial Genomics 10(5)
 - **Flye**: Kolmogorov et al. (2019) Nature Biotechnology 37:540–546
-- **DragonFlye**: github.com/rpetit3/dragonflye
-- **Unicycler**: Wick et al. (2017) PLOS Computational Biology 13(6)
+- **Raven**: Vaser & Šikić (2021) Nature Computational Science 1:332–336
 - **seqkit**: Shen et al. (2016) PLOS ONE 11(10):e0163962
 - **Nextflow**: Di Tommaso et al. (2017) Nature Biotechnology 35:316–319
