@@ -18,7 +18,7 @@
 //                        Ignored when --hybracter_auto true
 //   --hybracter_auto     Let hybracter estimate chromosome size (default: true)
 //   --hybracter_no_medaka  Skip medaka polishing — required on macOS ARM (default: false)
-//   --outdir             Output directory (default: assembly_results)
+//   --outdir             Output directory (default: assembly_results_<assembler>)
 //
 // Usage examples:
 //   # Hybracter (default), Linux/HPC:
@@ -85,7 +85,7 @@ if (params.help) {
       --samplesheet <csv>   CSV with columns: id,reads
 
     COMMON OPTIONS
-      --outdir              <dir>    Output directory (default: assembly_results)
+      --outdir              <dir>    Output directory (default: assembly_results_<assembler>)
       --assembler           <name>   hybracter (default) | flye | dragonflye | unicycler
       --genome_size         <size>   Expected genome size (default: 5m)
       --min_read_depth      <n>      Min estimated depth to assemble (default: 20)
@@ -132,6 +132,10 @@ if (params.help) {
     """.stripIndent()
     exit 0
 }
+
+// Resolve output directory before any process runs so publishDir closures in
+// assemble.config pick up the correct value.
+params.outdir = params.outdir ?: "assembly_results_${params.assembler}"
 
 workflow {
 

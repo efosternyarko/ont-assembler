@@ -52,33 +52,34 @@ Then re-run the pipeline — the databases persist in the env across runs.
 
 ```bash
 # Hybracter (default) — Linux / HPC
+# Output goes to assembly_results_hybracter/ by default
 nextflow run assemble.nf -c assemble.config -profile conda \
-    --input_dir /path/to/fastq/ \
-    --outdir    assembly_results/
+    --input_dir /path/to/fastq/
 
 # macOS Apple Silicon (M1 and above)
 CONDA_SUBDIR=osx-64 nextflow run assemble.nf -c assemble.config -profile conda,arm64 \
     --input_dir /path/to/fastq/ \
-    --outdir    assembly_results/ \
     --hybracter_no_medaka true
 
 # Samplesheet input (CSV with columns: id,reads)
 nextflow run assemble.nf -c assemble.config -profile conda \
-    --samplesheet samples.csv \
-    --outdir      assembly_results/
+    --samplesheet samples.csv
 
-# Alternative assembler
+# Alternative assembler — output goes to assembly_results_flye/
 nextflow run assemble.nf -c assemble.config -profile conda \
     --input_dir /path/to/fastq/ \
-    --outdir    assembly_results/ \
     --assembler flye
 ```
+
+> The output directory defaults to `assembly_results_<assembler>` (e.g. `assembly_results_hybracter`,
+> `assembly_results_flye`) so parallel runs with different assemblers never overwrite each other.
+> Override with `--outdir <dir>`.
 
 **Feed assembled FASTAs into enteric-typer** (hybracter default):
 
 ```bash
 nextflow run /path/to/enteric-typer/main.nf -profile conda \
-    --input_dir assembly_results/all_assemblies/ \
+    --input_dir assembly_results_hybracter/all_assemblies/ \
     --outdir    typing_results/
 ```
 
@@ -101,7 +102,7 @@ nextflow run /path/to/enteric-typer/main.nf -profile conda \
 |---|---|---|
 | `--input_dir` | `null` | Directory of FASTQ / FASTQ.gz files. Sample ID = filename stem (strip extension). |
 | `--samplesheet` | `null` | CSV with columns `id,reads` |
-| `--outdir` | `assembly_results` | Output directory |
+| `--outdir` | `assembly_results_<assembler>` | Output directory (assembler name included to prevent collisions) |
 | `--assembler` | `hybracter` | Assembly tool: `hybracter` \| `flye` \| `dragonflye` \| `unicycler` |
 | `--genome_size` | `5m` | Expected genome size for depth calculation (e.g. `5m`, `4500000`) |
 | `--min_read_depth` | `20` | Minimum estimated depth (×). Shallower samples are skipped and excluded from the plot. |
@@ -116,7 +117,7 @@ nextflow run /path/to/enteric-typer/main.nf -profile conda \
 ## Output files
 
 ```
-assembly_results/
+assembly_results_<assembler>/
 │
 │  ── Read QC ──────────────────────────────────────────────────────────────────
 │
@@ -215,8 +216,7 @@ assembly_results/
 
 ```bash
 nextflow run assemble.nf -c assemble.config -profile singularity,slurm \
-    --input_dir /path/to/fastq/ \
-    --outdir    assembly_results/
+    --input_dir /path/to/fastq/
 ```
 
 ### macOS Apple Silicon
@@ -224,7 +224,6 @@ nextflow run assemble.nf -c assemble.config -profile singularity,slurm \
 ```bash
 CONDA_SUBDIR=osx-64 nextflow run assemble.nf -c assemble.config -profile conda,arm64 \
     --input_dir /path/to/fastq/ \
-    --outdir    assembly_results/ \
     --hybracter_no_medaka true
 ```
 
