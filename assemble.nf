@@ -190,19 +190,32 @@ workflow {
             params.hybracter_no_medaka
         )
         ch_assemblies = HYBRACTER_ASSEMBLY.out.assembly
+        ch_timing     = HYBRACTER_ASSEMBLY.out.timing
     } else if (asm == 'flye') {
         FLYE_ASSEMBLY(ch_reads_with_depth, params.genome_size)
         ch_assemblies = FLYE_ASSEMBLY.out.assembly
+        ch_timing     = FLYE_ASSEMBLY.out.timing
     } else if (asm == 'dragonflye') {
         DRAGONFLYE_ASSEMBLY(ch_reads_with_depth, params.genome_size)
         ch_assemblies = DRAGONFLYE_ASSEMBLY.out.assembly
+        ch_timing     = DRAGONFLYE_ASSEMBLY.out.timing
     } else if (asm == 'unicycler') {
         UNICYCLER_ASSEMBLY(ch_reads_with_depth)
         ch_assemblies = UNICYCLER_ASSEMBLY.out.assembly
+        ch_timing     = UNICYCLER_ASSEMBLY.out.timing
     } else {
         error "Unknown assembler '${params.assembler}'. Choose: hybracter | flye | dragonflye | unicycler"
     }
 
     // Emit assembled FASTAs (publishDir in assemble.config copies them to outdir/assemblies/)
     ch_assemblies.view { id, fasta -> "Assembled: ${id}  →  ${fasta}" }
+
+    // Collate per-sample timing TSVs into a single summary (header from first file, data rows only from rest)
+    ch_timing
+        .collectFile(
+            name:     "assembly_timing_summary.tsv",
+            storeDir: "${params.outdir}",
+            keepHeader: true,
+            sort:     true
+        )
 }

@@ -26,6 +26,7 @@ process HYBRACTER_ASSEMBLY {
     path("${sample_id}_chromosome.fasta"),  optional: true,     emit: chromosome
     path("${sample_id}_plasmid.fasta"),     optional: true,     emit: plasmid
     path("${sample_id}_incomplete.fasta"),  optional: true,     emit: incomplete
+    path("${sample_id}_timing.tsv"),                            emit: timing
 
     script:
     def auto_flag     = auto_mode ? '--auto' : ''
@@ -39,6 +40,8 @@ process HYBRACTER_ASSEMBLY {
     else
         echo "${sample_id},${reads},${chromosome_size}" > hybracter_input.csv
     fi
+
+    _start=\$(date +%s)
 
     # Force osx-64 for internal Snakemake conda envs (needed on Apple Silicon;
     # has no effect on Linux/x86_64).  --conda-prefix reuses envs already built
@@ -85,5 +88,11 @@ process HYBRACTER_ASSEMBLY {
     else
         printf 'sample\\tstatus\\n${sample_id}\\tunknown\\n' > ${sample_id}_hybracter_summary.tsv
     fi
+
+    _end=\$(date +%s)
+    _elapsed=\$(( _end - _start ))
+    _hms=\$(printf '%02d:%02d:%02d' \$(( _elapsed/3600 )) \$(( (_elapsed%3600)/60 )) \$(( _elapsed%60 )))
+    printf 'sample\tassembler\tduration_seconds\tduration_hms\n' > ${sample_id}_timing.tsv
+    printf '%s\thybracter\t%d\t%s\n' "${sample_id}" "\$_elapsed" "\$_hms" >> ${sample_id}_timing.tsv
     """
 }
