@@ -26,6 +26,7 @@ process HYBRACTER_ASSEMBLY {
     path("${sample_id}_chromosome.fasta"),  optional: true,     emit: chromosome
     path("${sample_id}_plasmid.fasta"),     optional: true,     emit: plasmid
     path("${sample_id}_incomplete.fasta"),  optional: true,     emit: incomplete
+    path("${sample_id}_flye.gfa"),          optional: true,     emit: gfa
     path("${sample_id}_timing.tsv"),                            emit: timing
 
     script:
@@ -88,6 +89,10 @@ process HYBRACTER_ASSEMBLY {
     else
         printf 'sample\\tstatus\\n${sample_id}\\tunknown\\n' > ${sample_id}_hybracter_summary.tsv
     fi
+
+    # Copy Flye assembly graph — buried at processing/assemblies/{sample}/assembly_graph.gfa
+    cp "${sample_id}_hybracter/processing/assemblies/${sample_id}/assembly_graph.gfa" \
+        "${sample_id}_flye.gfa" 2>/dev/null || true
 
     _end=\$(date +%s)
     _elapsed=\$(( _end - _start ))

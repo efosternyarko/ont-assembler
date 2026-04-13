@@ -161,7 +161,8 @@ assembly_results_<assembler>/
 │   ├── {sample}_incomplete.fasta
 │   │     Draft contig set for samples where the chromosome could not be circularised.
 │   │     Present only for incomplete assemblies.
-│   └── {sample}_hybracter_summary.tsv
+│   ├── {sample}_hybracter_summary.tsv
+│   └── {sample}_flye.gfa             — Flye assembly graph (visualise in Bandage)
 │         Assembly outcome table (one row per sample):
 │           sample            — sample name
 │           complete          — TRUE / FALSE (chromosome circularised)
