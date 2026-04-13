@@ -53,20 +53,24 @@ Then re-run the pipeline — the databases persist in the env across runs.
 ```bash
 # Hybracter (default) — Linux / HPC
 nextflow run assemble.nf -c assemble.config -profile conda \
-    --input_dir /path/to/fastq/
+    --input_dir /path/to/fastq/ \
+    --outdir    assembly_results/
 
 # macOS Apple Silicon (M1 and above)
 CONDA_SUBDIR=osx-64 nextflow run assemble.nf -c assemble.config -profile conda,arm64 \
     --input_dir /path/to/fastq/ \
+    --outdir    assembly_results/ \
     --hybracter_no_medaka true
 
 # Samplesheet input (CSV with columns: id,reads)
 nextflow run assemble.nf -c assemble.config -profile conda \
-    --samplesheet samples.csv
+    --samplesheet samples.csv \
+    --outdir      assembly_results/
 
 # Alternative assembler
 nextflow run assemble.nf -c assemble.config -profile conda \
     --input_dir /path/to/fastq/ \
+    --outdir    assembly_results/ \
     --assembler flye
 ```
 
@@ -220,6 +224,7 @@ nextflow run assemble.nf -c assemble.config -profile singularity,slurm \
 ```bash
 CONDA_SUBDIR=osx-64 nextflow run assemble.nf -c assemble.config -profile conda,arm64 \
     --input_dir /path/to/fastq/ \
+    --outdir    assembly_results/ \
     --hybracter_no_medaka true
 ```
 
