@@ -10,6 +10,12 @@ A Nextflow pipeline for assembling Oxford Nanopore (ONT) long reads into genome 
 
 Assembled FASTAs are ready to feed directly into [enteric-typer](https://github.com/efosternyarko/enteric-typer).
 
+### Example read metrics plot (n = 7 E. coli samples)
+
+![ONT read metrics example](assets/ont_read_metrics_example.png)
+
+*8-panel figure: Read N50, average read depth, total reads, and mean read length — each shown as a histogram (left) and boxplot (right). The dashed red line in panel C marks the `--min_read_depth` threshold (default 20×); samples below this are excluded from assembly.*
+
 ---
 
 ## Installation
