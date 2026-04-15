@@ -58,28 +58,35 @@ Then re-run the pipeline — the databases persist in the env across runs.
 
 ```bash
 # Hybracter (default) — Linux / HPC
-# Output goes to assembly_results_hybracter/ by default
 nextflow run assemble.nf -c assemble.config -profile conda \
-    --input_dir /path/to/fastq/
+    --input_dir /path/to/fastq/ \
+    --outdir    assembly_results_hybracter/
 
 # macOS Apple Silicon (M1 and above)
 CONDA_SUBDIR=osx-64 nextflow run assemble.nf -c assemble.config -profile conda,arm64 \
     --input_dir /path/to/fastq/ \
+    --outdir    assembly_results_hybracter/ \
     --hybracter_no_medaka true
 
 # Samplesheet input (CSV with columns: id,reads)
 nextflow run assemble.nf -c assemble.config -profile conda \
-    --samplesheet samples.csv
+    --samplesheet samples.csv \
+    --outdir      assembly_results_hybracter/
 
-# Alternative assembler — output goes to assembly_results_flye/
+# Alternative assemblers
 nextflow run assemble.nf -c assemble.config -profile conda \
     --input_dir /path/to/fastq/ \
-    --assembler flye
+    --assembler flye \
+    --outdir    assembly_results_flye/
+
+nextflow run assemble.nf -c assemble.config -profile conda \
+    --input_dir /path/to/fastq/ \
+    --assembler raven \
+    --outdir    assembly_results_raven/
 ```
 
-> The output directory defaults to `assembly_results_<assembler>` (e.g. `assembly_results_hybracter`,
-> `assembly_results_flye`) so parallel runs with different assemblers never overwrite each other.
-> Override with `--outdir <dir>`.
+> Each assembler gets its own output directory so parallel runs never overwrite each other.
+> If you omit `--outdir` it defaults to `assembly_results_<assembler>` automatically.
 
 **Feed assembled FASTAs into enteric-typer** (hybracter default):
 
