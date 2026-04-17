@@ -1,5 +1,9 @@
 # ont-assembler
 
+🌐 **Language / Langue / Língua:** English | [Français](README_fr.md) | [Português](README_pt.md)
+
+---
+
 A Nextflow pipeline for assembling Oxford Nanopore (ONT) long reads into genome assemblies.
 
 **Workflow steps:**
