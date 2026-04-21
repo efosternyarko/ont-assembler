@@ -1,0 +1,7 @@
+name: enteric_rasusa
+channels:
+  - bioconda
+  - conda-forge
+  - nodefaults
+dependencies:
+  - rasusa>=2.0.0

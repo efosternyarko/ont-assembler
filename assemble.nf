@@ -4,7 +4,8 @@
 // Workflow:
 //   1. Read QC   — seqkit stats → per-sample TSV → 8-panel metrics plot
 //   2. Depth filter — drop samples below --min_read_depth
-//   3. Assembly  — hybracter (default) | flye | raven
+//   3. Subsampling — reads above --max_depth (default 100×) are subsampled with rasusa
+//   4. Assembly  — hybracter (default) | flye | raven
 //
 // Input (one of):
 //   --samplesheet  CSV with columns:  id,reads
@@ -40,6 +41,7 @@ nextflow.enable.dsl = 2
 
 include { ONT_READ_QC       } from './modules/ont_read_qc'
 include { ONT_PLOT_METRICS  } from './modules/ont_plot_metrics'
+include { RASUSA_SUBSAMPLE    } from './modules/rasusa_subsample'
 include { HYBRACTER_ASSEMBLY  } from './modules/hybracter_assembly'
 include { FLYE_ASSEMBLY       } from './modules/flye_assembly'
 include { RAVEN_ASSEMBLY      } from './modules/raven_assembly'
@@ -88,6 +90,7 @@ if (params.help) {
       --assembler           <name>   hybracter (default) | flye | raven
       --genome_size         <size>   Expected genome size (default: 5m)
       --min_read_depth      <n>      Min estimated depth to assemble (default: 20)
+      --max_depth           <n>      Subsample reads above this depth with rasusa (default: 100)
       --hybracter_no_medaka          Skip medaka polishing (required on macOS ARM)
       --max_cpus            <n>      Max CPUs per process (default: 16)
 
@@ -172,18 +175,40 @@ workflow {
         params.min_read_depth
     )
 
-    // Re-join passing IDs with original reads channel to get the reads path
+    // Re-join passing IDs with original reads, preserving depth for subsampling decision
     ch_reads_with_depth = ch_passing
-        .map { id, _depth, _tsv -> tuple(id, 'pass') }
+        .map { id, depth, _tsv -> tuple(id, depth) }
         .join(ch_reads, by: 0)
-        .map { id, _flag, reads -> tuple(id, reads) }
+        .map { id, depth, reads -> tuple(id, reads, depth) }
 
-    // 5. Assembly — dispatch to selected assembler
+    // 5. Subsampling — branch on max_depth; subsample high-depth samples with rasusa
+    ch_reads_with_depth
+        .branch { id, reads, depth ->
+            high:   depth > params.max_depth as double
+            normal: true
+        }
+        .set { ch_depth_branched }
+
+    RASUSA_SUBSAMPLE(
+        ch_depth_branched.high
+            .map { id, reads, depth ->
+                log.info "Subsampling ${id}: ${depth.round(1)}× > ${params.max_depth}× cap → rasusa"
+                tuple(id, reads)
+            },
+        params.genome_size,
+        params.max_depth
+    )
+
+    ch_assembly_reads = RASUSA_SUBSAMPLE.out.reads.mix(
+        ch_depth_branched.normal.map { id, reads, _depth -> tuple(id, reads) }
+    )
+
+    // 6. Assembly — dispatch to selected assembler
     def asm = params.assembler.toLowerCase()
 
     if (asm == 'hybracter') {
         HYBRACTER_ASSEMBLY(
-            ch_reads_with_depth,
+            ch_assembly_reads,
             params.chromosome_size,
             params.hybracter_auto,
             params.hybracter_no_medaka
@@ -191,11 +216,11 @@ workflow {
         ch_assemblies = HYBRACTER_ASSEMBLY.out.assembly
         ch_timing     = HYBRACTER_ASSEMBLY.out.timing
     } else if (asm == 'flye') {
-        FLYE_ASSEMBLY(ch_reads_with_depth, params.genome_size)
+        FLYE_ASSEMBLY(ch_assembly_reads, params.genome_size)
         ch_assemblies = FLYE_ASSEMBLY.out.assembly
         ch_timing     = FLYE_ASSEMBLY.out.timing
     } else if (asm == 'raven') {
-        RAVEN_ASSEMBLY(ch_reads_with_depth)
+        RAVEN_ASSEMBLY(ch_assembly_reads)
         ch_assemblies = RAVEN_ASSEMBLY.out.assembly
         ch_timing     = RAVEN_ASSEMBLY.out.timing
     } else {

@@ -10,7 +10,8 @@ Um pipeline Nextflow para montagem de leituras longas Oxford Nanopore (ONT) em g
 1. **Controlo de qualidade das leituras** — métricas por amostra (N50, profundidade, total de leituras, comprimento médio) via `seqkit stats`
 2. **Filtro de profundidade** — amostras abaixo de `--min_read_depth` (predefinição: 20×) são ignoradas com um aviso
 3. **Figura de métricas de leitura** — figura com 8 painéis (histogramas + diagramas de caixa) para as amostras aprovadas
-4. **Montagem** — [Hybracter](https://github.com/gbouras13/hybracter) por predefinição, com [Flye](https://github.com/fenderglass/Flye) e [Raven](https://github.com/lbcb-sci/raven) como alternativas
+4. **Subamostragem** — amostras acima de `--max_depth` (predefinição: 100×) são subamostradas para 100× com o [Rasusa](https://github.com/mbhall88/rasusa) antes da montagem
+5. **Montagem** — [Hybracter](https://github.com/gbouras13/hybracter) por predefinição, com [Flye](https://github.com/fenderglass/Flye) e [Raven](https://github.com/lbcb-sci/raven) como alternativas
 
 Os FASTAs montados estão prontos para serem transmitidos directamente ao [enteric-typer](https://github.com/efosternyarko/enteric-typer).
 
@@ -120,6 +121,7 @@ nextflow run /caminho/para/enteric-typer/main.nf -profile conda \
 | `--assembler` | `hybracter` | Ferramenta de montagem: `hybracter` \| `flye` \| `raven` |
 | `--genome_size` | `5m` | Tamanho estimado do genoma para cálculo de profundidade (ex. `5m`, `4500000`) |
 | `--min_read_depth` | `20` | Profundidade mínima estimada (×). Amostras menos profundas são ignoradas e excluídas da figura. |
+| `--max_depth` | `100` | Profundidade máxima (×) antes da subamostragem. Amostras acima deste valor são subamostradas com o Rasusa antes da montagem. |
 | `--chromosome_size` | `2500000` | Hybracter: comprimento mínimo de contig (pb) para ser considerado cromossoma. Ignorado se `--hybracter_auto true`. |
 | `--hybracter_auto` | `true` | Deixar o Hybracter estimar o tamanho do cromossoma automaticamente (`--auto`). |
 | `--hybracter_no_medaka` | `false` | Ignorar o polimento medaka. **Obrigatório no macOS Apple Silicon** (conflito OpenSSL). Manter `false` em Linux/HPC. |
@@ -263,5 +265,6 @@ Se utilizar o ont-assembler, cite também as ferramentas subjacentes:
 - **Hybracter**: Bouras et al. (2024) Microbial Genomics 10(5)
 - **Flye**: Kolmogorov et al. (2019) Nature Biotechnology 37:540–546
 - **Raven**: Vaser & Šikić (2021) Nature Computational Science 1:332–336
+- **Rasusa**: Hall (2022) Journal of Open Source Software 7(69):3941
 - **seqkit**: Shen et al. (2016) PLOS ONE 11(10):e0163962
 - **Nextflow**: Di Tommaso et al. (2017) Nature Biotechnology 35:316–319

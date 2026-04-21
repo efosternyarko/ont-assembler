@@ -10,7 +10,8 @@ A Nextflow pipeline for assembling Oxford Nanopore (ONT) long reads into genome 
 1. **Read QC** — per-sample metrics (read N50, depth, total reads, mean length) via `seqkit stats`
 2. **Depth filter** — samples below `--min_read_depth` (default 20×) are skipped with a warning
 3. **Read metrics plot** — 8-panel figure (histograms + boxplots) for passing samples
-4. **Assembly** — [Hybracter](https://github.com/gbouras13/hybracter) by default, with [Flye](https://github.com/fenderglass/Flye) and [Raven](https://github.com/lbcb-sci/raven) as alternatives
+4. **Subsampling** — samples above `--max_depth` (default 100×) are subsampled to 100× with [Rasusa](https://github.com/mbhall88/rasusa) before assembly
+5. **Assembly** — [Hybracter](https://github.com/gbouras13/hybracter) by default, with [Flye](https://github.com/fenderglass/Flye) and [Raven](https://github.com/lbcb-sci/raven) as alternatives
 
 Assembled FASTAs are ready to feed directly into [enteric-typer](https://github.com/efosternyarko/enteric-typer).
 
@@ -122,6 +123,7 @@ nextflow run /path/to/enteric-typer/main.nf -profile conda \
 | `--assembler` | `hybracter` | Assembly tool: `hybracter` \| `flye` \| `raven` |
 | `--genome_size` | `5m` | Expected genome size for depth calculation (e.g. `5m`, `4500000`) |
 | `--min_read_depth` | `20` | Minimum estimated depth (×). Shallower samples are skipped and excluded from the plot. |
+| `--max_depth` | `100` | Maximum depth (×) before subsampling. Samples above this are subsampled to this target with Rasusa prior to assembly. |
 | `--chromosome_size` | `2500000` | Hybracter: minimum contig length (bp) to call a chromosome. Ignored when `--hybracter_auto true`. |
 | `--hybracter_auto` | `true` | Let hybracter estimate chromosome size automatically (`--auto`). |
 | `--hybracter_no_medaka` | `false` | Skip medaka polishing. **Required on macOS Apple Silicon** (OpenSSL conflict). Leave `false` on Linux/HPC/WSL2. |
@@ -287,5 +289,6 @@ If you use ont-assembler, please also cite the underlying tools:
 - **Hybracter**: Bouras et al. (2024) Microbial Genomics 10(5)
 - **Flye**: Kolmogorov et al. (2019) Nature Biotechnology 37:540–546
 - **Raven**: Vaser & Šikić (2021) Nature Computational Science 1:332–336
+- **Rasusa**: Hall (2022) Journal of Open Source Software 7(69):3941
 - **seqkit**: Shen et al. (2016) PLOS ONE 11(10):e0163962
 - **Nextflow**: Di Tommaso et al. (2017) Nature Biotechnology 35:316–319

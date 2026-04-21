@@ -10,7 +10,8 @@ Un pipeline Nextflow pour l'assemblage de lectures longues Oxford Nanopore (ONT)
 1. **Contrôle qualité des lectures** — métriques par échantillon (N50, profondeur, nombre total de lectures, longueur moyenne) via `seqkit stats`
 2. **Filtre de profondeur** — les échantillons en dessous de `--min_read_depth` (défaut : 20×) sont ignorés avec un avertissement
 3. **Figure des métriques de lecture** — figure en 8 panneaux (histogrammes + boîtes à moustaches) pour les échantillons retenus
-4. **Assemblage** — [Hybracter](https://github.com/gbouras13/hybracter) par défaut, avec [Flye](https://github.com/fenderglass/Flye) et [Raven](https://github.com/lbcb-sci/raven) comme alternatives
+4. **Sous-échantillonnage** — les échantillons au-dessus de `--max_depth` (défaut : 100×) sont sous-échantillonnés à 100× avec [Rasusa](https://github.com/mbhall88/rasusa) avant l'assemblage
+5. **Assemblage** — [Hybracter](https://github.com/gbouras13/hybracter) par défaut, avec [Flye](https://github.com/fenderglass/Flye) et [Raven](https://github.com/lbcb-sci/raven) comme alternatives
 
 Les FASTAs assemblés sont prêts à être transmis directement à [enteric-typer](https://github.com/efosternyarko/enteric-typer).
 
@@ -120,6 +121,7 @@ nextflow run /chemin/vers/enteric-typer/main.nf -profile conda \
 | `--assembler` | `hybracter` | Outil d'assemblage : `hybracter` \| `flye` \| `raven` |
 | `--genome_size` | `5m` | Taille estimée du génome pour le calcul de la profondeur (ex. `5m`, `4500000`) |
 | `--min_read_depth` | `20` | Profondeur minimale estimée (×). Les échantillons moins profonds sont ignorés et exclus de la figure. |
+| `--max_depth` | `100` | Profondeur maximale (×) avant sous-échantillonnage. Les échantillons au-dessus de ce seuil sont sous-échantillonnés avec Rasusa avant l'assemblage. |
 | `--chromosome_size` | `2500000` | Hybracter : longueur minimale de contig (pb) pour être considéré comme un chromosome. Ignoré si `--hybracter_auto true`. |
 | `--hybracter_auto` | `true` | Laisser Hybracter estimer la taille du chromosome automatiquement (`--auto`). |
 | `--hybracter_no_medaka` | `false` | Ignorer le polissage medaka. **Requis sur macOS Apple Silicon** (conflit OpenSSL). Laisser à `false` sur Linux/HPC. |
@@ -263,5 +265,6 @@ Si vous utilisez ont-assembler, veuillez également citer les outils sous-jacent
 - **Hybracter** : Bouras et al. (2024) Microbial Genomics 10(5)
 - **Flye** : Kolmogorov et al. (2019) Nature Biotechnology 37:540–546
 - **Raven** : Vaser & Šikić (2021) Nature Computational Science 1:332–336
+- **Rasusa** : Hall (2022) Journal of Open Source Software 7(69):3941
 - **seqkit** : Shen et al. (2016) PLOS ONE 11(10):e0163962
 - **Nextflow** : Di Tommaso et al. (2017) Nature Biotechnology 35:316–319
