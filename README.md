@@ -61,7 +61,7 @@ Then re-run the pipeline — the databases persist in the env across runs.
 ## Quick start
 
 ```bash
-# Hybracter (default) — Linux / HPC
+# Hybracter (default) — Linux / HPC / WSL2
 nextflow run assemble.nf -c assemble.config -profile conda \
     --input_dir /path/to/fastq/ \
     --outdir    assembly_results_hybracter/
@@ -124,7 +124,7 @@ nextflow run /path/to/enteric-typer/main.nf -profile conda \
 | `--min_read_depth` | `20` | Minimum estimated depth (×). Shallower samples are skipped and excluded from the plot. |
 | `--chromosome_size` | `2500000` | Hybracter: minimum contig length (bp) to call a chromosome. Ignored when `--hybracter_auto true`. |
 | `--hybracter_auto` | `true` | Let hybracter estimate chromosome size automatically (`--auto`). |
-| `--hybracter_no_medaka` | `false` | Skip medaka polishing. **Required on macOS Apple Silicon** (OpenSSL conflict). Leave `false` on Linux/HPC. |
+| `--hybracter_no_medaka` | `false` | Skip medaka polishing. **Required on macOS Apple Silicon** (OpenSSL conflict). Leave `false` on Linux/HPC/WSL2. |
 | `--max_cpus` | `16` | Maximum CPUs per process |
 | `--max_memory` | `128.GB` | Maximum memory per process |
 
@@ -257,7 +257,7 @@ CONDA_SUBDIR=osx-64 nextflow run assemble.nf -c assemble.config -profile conda,a
 > hybracter still runs Flye assembly, Plassembler plasmid recovery, and chromosome
 > circularisation — you simply do not get the final medaka polishing pass.
 >
-> **If medaka polishing is required**, run the pipeline on Linux or an HPC cluster
+> **If medaka polishing is required**, run the pipeline on Linux, WSL2, or an HPC cluster
 > (omit `--hybracter_no_medaka` — it defaults to `false`). With high-accuracy Dorado
 > basecalling (Q20+ reads), the impact of skipping medaka polishing on consensus
 > accuracy is generally minimal.

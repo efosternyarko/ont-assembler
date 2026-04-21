@@ -59,7 +59,7 @@ Depois, volte a executar o pipeline — as bases de dados ficam guardadas no amb
 ## Início rápido
 
 ```bash
-# Hybracter (predefinição) — Linux / HPC
+# Hybracter (predefinição) — Linux / HPC / WSL2
 nextflow run assemble.nf -c assemble.config -profile conda \
     --input_dir /caminho/para/fastq/ \
     --outdir    assembly_results_hybracter/

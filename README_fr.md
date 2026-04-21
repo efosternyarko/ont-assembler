@@ -59,7 +59,7 @@ Relancez ensuite le pipeline — les bases de données sont conservées dans l'e
 ## Démarrage rapide
 
 ```bash
-# Hybracter (défaut) — Linux / HPC
+# Hybracter (défaut) — Linux / HPC / WSL2
 nextflow run assemble.nf -c assemble.config -profile conda \
     --input_dir /chemin/vers/fastq/ \
     --outdir    assembly_results_hybracter/
