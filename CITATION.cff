@@ -11,7 +11,7 @@ authors:
 repository-code: "https://github.com/efosternyarko/ont-assembler"
 url: "https://github.com/efosternyarko/ont-assembler"
 license: MIT
-version: 1.1.0
+version: 1.1.1
 date-released: 2026-10-27
 keywords:
   - Oxford Nanopore
